@@ -13,7 +13,7 @@
         </span>
       </router-link>
       <router-link
-        :to="{name: ''}"
+        :to="{name: 'import'}"
         class="button is-outlined is-small"
       >
         <span class="icon">
@@ -24,7 +24,7 @@
         </span>
       </router-link>
       <router-link
-        :to="{name: ''}"
+        :to="{name: 'export'}"
         class="button is-outlined is-small"
       >
         <span class="icon">
@@ -38,16 +38,34 @@
     <div
       v-for="(group, index) in groupedAccounts"
       :key="index"
+      class="mb-4"
     >
-      {{ group[0].group }}
+      <div class="group-header is-flex">
+        <div>{{ group[0].group }} [{{ group.length }}]</div>
+        <div class="buttons controls">
+          <span
+            class="button is-light is-small"
+            @click="editGroup(group)"
+          >
+            <i class="mdi mdi-pencil" />
+          </span>
+
+          <span
+            class="button is-danger is-light is-small"
+            @click="deleteGroup(group)"
+          >
+            <i class="mdi mdi-delete" />
+          </span>
+        </div>
+      </div>
       <div
-        v-for="(account,index) in group"
-        :key="index"
+        v-for="(account) in group"
+        :key="account.id"
         class="box accounts"
       >
         <div class="controls">
           <button
-            class="button is-primary is-small"
+            class="button is-primary"
             @click="openOrg(account)"
           >
             <span class="icon">
@@ -55,7 +73,7 @@
             </span>
           </button>
           <button
-            class="button is-danger is-small"
+            class="button is-light"
             @click="openDevConsole(account)"
           >
             <span class="icon">
@@ -83,6 +101,7 @@
 
 <script>
 import groupBy from 'lodash-es/groupBy'
+import cloneDeep from 'clone-deep'
 
 export default {
     computed:{
@@ -109,6 +128,43 @@ export default {
           active: true,
           url: account.developerConsoleUrl
         })
+      },
+      editGroup(group){
+        this.$dialog.prompt({
+          title: "",
+        }, {
+          promptHelp: '新しいグループ名を入力してください'
+        }).then(dialog => {
+          if(!dialog.data) return
+          
+          group.forEach(account=>{
+            const updatedAccount = cloneDeep(account)
+            updatedAccount.group = dialog.data
+            this.$store.dispatch('updateAccount', updatedAccount)
+          })
+        })
+        .catch((e) => {
+          console.log('実行はキャンセルされました');
+          console.log(e);
+
+        });
+      },
+      deleteGroup(group){
+          const self = this
+          this.$dialog.confirm({
+            title: '確認',
+            body: 'グループに紐づくアカウントを全て削除してもよろしいですか？'
+          },{
+            okText: 'はい',
+            cancelText: 'キャンセル',
+          }).then(() => {
+            group.forEach(account=>{
+              self.$store.dispatch('deleteAccount', account.id)
+            })
+          }).catch((e) => {
+            console.log('実行はキャンセルされました');
+            console.log(e);
+          });
       }
     }
 }
@@ -126,5 +182,12 @@ export default {
   }
   .accounts .edit{
     margin-left: auto;
+  }
+  .group-header .controls{
+    margin-left: auto;
+  }
+  .group-header .button{
+    margin: 0px 5px 10px 5px !important;
+    padding: 0.5rem !important;
   }
 </style>

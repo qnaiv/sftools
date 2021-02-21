@@ -17,25 +17,26 @@ const store = new Vuex.Store({
                 state.commit('getAccountsMutation', [...result.accounts].map(account => new Account(account)) || [])
             })
         },
-        upsertAccount: ({ commit, state },account) =>{
-            console.log("upsertAccount");
-            console.log(account);
+        updateAccount: ({ commit, state },account) =>{
+            console.log("update")
             const updatedAccounts = [...state.accounts]
             const accountCopy = cloneDeep(account)
             
-            if(accountCopy.id){
-                console.log("update")
-                const updateTargetIdx = updatedAccounts.findIndex(acc=>acc.id === accountCopy.id)
-                console.log(updateTargetIdx)
-                updatedAccounts[updateTargetIdx] = accountCopy
-            }else{
-                console.log("insert")
-                accountCopy.id = shortid.generate()
-                console.log(accountCopy.id)
-                updatedAccounts.push(accountCopy)
+            const updateTargetIdx = updatedAccounts.findIndex(acc=>acc.id === accountCopy.id)
+            if(updateTargetIdx === -1){
+                return
             }
-            console.log(updatedAccounts);
-            console.log(accountCopy);
+            updatedAccounts[updateTargetIdx] = accountCopy
+
+            chrome.storage.sync.set({accounts: updatedAccounts})
+            commit('getAccountsMutation', updatedAccounts)
+        },
+        insertAccount: ({ commit, state },account) =>{
+            console.log("insert")
+            const updatedAccounts = [...state.accounts]
+            const accountCopy = cloneDeep(account)
+            accountCopy.id = shortid.generate()
+            updatedAccounts.push(accountCopy)
             chrome.storage.sync.set({accounts: updatedAccounts})
             commit('getAccountsMutation', updatedAccounts)
         },

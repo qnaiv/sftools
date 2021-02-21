@@ -39,7 +39,7 @@
         <div class="select">
           <select v-model="group">
             <option
-              v-if="!groups"
+              v-if="!groups.find(g=>g.group==='general')"
               value="general"
             >
               general
@@ -56,16 +56,18 @@
             </option>
           </select>
         </div>
-        <div
-          v-if="!group"
-          class="control"
+      </div>
+    </div>
+    <div class="field">
+      <div
+        v-if="!group"
+        class="control"
+      >
+        <input
+          v-model="newGroup"
+          type="text"
+          class="input"
         >
-          <input
-            v-model="newGroup"
-            type="text"
-            class="input"
-          >
-        </div>
       </div>
     </div>
     <div class="field">
@@ -84,34 +86,26 @@
         </div>
       </div>
     </div>
-    <div class="field is-grouped">
-      <div class="control">
-        <button
-          class="button is-primary"
-          @click="saveAccount"
-        >
-          Save
-        </button>
-      </div>
-      <div class="control">
-        <button
-          class="button is-link is-light"
-          @click="cancel"
-        >
-          Cancel
-        </button>
-      </div>
-      <div
-        v-if="id"
-        class="control"
+    <div class="buttons account-form-buttons">
+      <button
+        class="button is-primary"
+        @click="saveAccount"
       >
-        <button
-          class="button is-danger"
-          @click="deleteAccount"
-        >
-          Delete
-        </button>
-      </div>
+        Save
+      </button>
+      <button
+        class="button is-link is-light"
+        @click="cancel"
+      >
+        Cancel
+      </button>
+      <button
+        v-if="id"
+        class="button delete-button is-danger"
+        @click="deleteAccount"
+      >
+        Delete
+      </button>
     </div>
   </div>
 </template>
@@ -156,7 +150,8 @@ export default {
     },
     methods:{
         saveAccount(){
-          this.$store.dispatch('upsertAccount', {
+          const methodName = this.id ? 'updateAccount' : 'insertAccount'
+          this.$store.dispatch(methodName, {
             id: this.id,
             displayName: this.displayName,
             userName: this.userName,
@@ -174,12 +169,10 @@ export default {
           },{
             okText: 'はい',
             cancelText: 'キャンセル',
-          })
-          .then(function() {
+          }).then(function() {
             self.$store.dispatch('deleteAccount', self.id)
             self.$router.push('/')
-          })
-          .catch(function(e) {
+          }).catch(function(e) {
             console.log(e)
             console.log('実行はキャンセルされました');
           });
@@ -195,5 +188,7 @@ export default {
 </script>
 
 <style>
-
+.button.delete-button{
+    margin-left: auto;
+}
 </style>
