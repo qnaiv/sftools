@@ -1,18 +1,22 @@
 <template>
-  <div>
-    <h1>{{ msg }}</h1>
+  <div class="column">
+    <router-view />
   </div>
 </template>
 
 <script>
+
 export default {
-  data() {
-    return {
-      msg: 'Welcome!'
-    }
+  components: {
+
   }
 }
 </script>
 
-<style lang="stylus">
+<style>
+body{
+  width: 500px !important;
+  min-width: 500px !important;
+  max-width: 500px !important;
+}
 </style>

@@ -6,7 +6,13 @@
   },
   "dependencies": {
     "bulma-fluent": "^0.3.25",
-    "vue": "^2.6.11"
+    "clone-deep": "^4.0.1",
+    "lodash-es": "^4.17.21",
+    "shortid": "^2.2.16",
+    "vue": "^2.6.11",
+    "vue-router": "^3.5.1",
+    "vuejs-dialog": "^1.4.2",
+    "vuex": "^3.6.2"
   },
   "description": "vue-chrome-extension-boilerplate",
   "devDependencies": {

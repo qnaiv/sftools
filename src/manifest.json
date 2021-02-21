@@ -13,12 +13,11 @@
       "run_at": "document_end"
     }
   ],
-  "description": "vue-chrome-extension-boilerplate",
+  "description": "salesforce tools",
   "icons": {
-    "16": "assets/icons/icon_16.png",
-    "32": "assets/icons/icon_32.png",
-    "64": "assets/icons/icon_64.png",
-    "128": "assets/icons/icon_128.png"
+    "16": "assets/icons/icon-16x16.png",
+    "32": "assets/icons/icon-32x32.png",
+    "128": "assets/icons/icon-128x128.png"
   },
   "manifest_version": 2,
   "name": "vue-chrome-extension-boilerplate",
