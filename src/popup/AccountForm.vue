@@ -169,10 +169,10 @@ export default {
           },{
             okText: 'はい',
             cancelText: 'キャンセル',
-          }).then(function() {
+          }).then(() => {
             self.$store.dispatch('deleteAccount', self.id)
             self.$router.push('/')
-          }).catch(function(e) {
+          }).catch((e) => {
             console.log(e)
             console.log('実行はキャンセルされました');
           });

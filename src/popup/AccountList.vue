@@ -72,6 +72,14 @@
               <i class="mdi mdi-folder-open" />
             </span>
           </button>
+          <!-- <button
+            class="button"
+            @click="openIncognito(account)"
+          >
+            <span class="icon">
+              <i class="mdi mdi-incognito" />
+            </span>
+          </button> -->
           <button
             class="button is-light"
             @click="openDevConsole(account)"
@@ -120,7 +128,7 @@ export default {
       openOrg(account) {
         chrome.tabs.create({
           active: true,
-          url: account.loginUrl
+          url: account.loginUrlWithParam
         })
       },
       openDevConsole(account) {
@@ -129,6 +137,18 @@ export default {
           url: account.developerConsoleUrl
         })
       },
+      // openIncognito(account) {
+     
+      //   const script = `document.getElementById('username_container').getElementsByClassName('username')[0].value = account.userName`
+      //   chrome.windows.create({
+      //     incognito: true,
+      //     url: account.loginUrl
+      //   },(window)=>{
+      //     console.log(window);
+      //       chrome.tabs.executeScript(null, {code: script})
+      //   })
+        
+      // },
       editGroup(group){
         this.$dialog.prompt({
           title: "",
@@ -190,4 +210,8 @@ export default {
     margin: 0px 5px 10px 5px !important;
     padding: 0.5rem !important;
   }
+  .accounts .controls .button{
+    margin: 0px !important;
+    padding: 1rem !important;
+      }
 </style>

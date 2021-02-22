@@ -18,10 +18,22 @@ export default class Account{
         }else{
           loginUrl = 'http://login.salesforce.com'
         }
-        return `${loginUrl}/?locale=jp&un=${ this.userName  }&pw=${ this.password}`
+        return loginUrl
+    }
+    
+    get loginParam(){
+      return `?locale=jp&un=${ this.userName  }&pw=${ this.password}`
+    }
+
+    get loginUrlWithParam(){
+        return `${this.loginUrl}/${this.loginParam}`
     }
 
     get developerConsoleUrl() {
-        return `${this.loginUrl}&startURL=%2F_ui%2Fcommon%2Fapex%2Fdebug%2FApexCSIPage`
+        return `${this.loginUrlWithParam}&startURL=%2F_ui%2Fcommon%2Fapex%2Fdebug%2FApexCSIPage`
+    }
+
+    get setupUrl() {
+      return `${this.loginUrlWithParam}&startURL=/setup/forcecomHomepage.apexp?setupid=ForceCom`
     }
 }
