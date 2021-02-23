@@ -23,16 +23,25 @@
         >
       </div>
     </div>
-    <div class="field">
-      <label class="label">Password</label>
+    <label class="label">Password</label>
+    <div class="field has-addons">
       <div class="control">
         <input
           v-model="password"
-          type="password"
-          class="input"
+          :type="showPassword ? 'text' : 'password'"
+          class="input is-fullwidth"
         >
       </div>
+      <div class="control">
+        <a
+          class="button"
+          @click="showPassword = !showPassword"
+        >
+          Show
+        </a>
+      </div>
     </div>
+         
     <div class="field">
       <label class="label">Group:</label>
       <div class="control">
@@ -127,7 +136,8 @@ export default {
             password: '',
             group: 'general',
             orgType: 'production',
-            newGroup: ''
+            newGroup: '',
+            showPassword: false
         }
     },
     computed: {

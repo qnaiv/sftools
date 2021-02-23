@@ -1,0 +1,151 @@
+<template>
+  <div>
+    <div class="card block">
+      <div class="card-content">
+        <p class="title">
+          Import
+        </p>
+        <p>
+          sftoolsまたはORGanizer for SalesforceでエクスポートしたJSONをインポートします。
+        </p>
+        <div class="field">
+          <label class="label">type</label>
+          <div class="control">
+            <div
+              class="select"
+            >
+              <select v-model="importType">
+                <option value="sftools">
+                  sftools
+                </option>
+                <option value="organizer">
+                  ORGanizer for Salesforce
+                </option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div class="field">
+          <div class="control">
+            <input
+              ref="uploadFile"
+              type="file"
+              @change="importJson"
+            >
+          </div>
+        </div>
+      </div>
+      <footer class="card-footer">
+        <button
+          class="card-footer-item"
+          :disabled="importedAccount.length === 0"
+          @click="saveImportedAccount"
+        >
+          import
+        </button>
+      </footer>
+    </div>
+
+    <div class="card block">
+      <div class="card-content">
+        <p class="title">
+          Export
+        </p>
+        <p>
+          json形式でデータをエクスポートします。
+        </p>
+      </div>
+      <footer class="card-footer">
+        <button
+          class="card-footer-item"
+          @click="exportJson"
+        >
+          Export
+        </button>
+      </footer>
+    </div>
+  </div>
+</template>
+
+<script>
+import Account from '../../entity/account'
+
+export default {
+  data() {
+    return {
+      importedAccount: [],
+      importType: 'sftools'
+    }
+  },created(){
+    this.$store.dispatch('getAccounts')
+  },
+  methods:{
+    exportJson(){
+      chrome.storage.sync.get('accounts', result =>{
+        const exportData = JSON.stringify(result)
+        const blob = new Blob([ exportData ], { "type" : "application/json" });
+        const link = document.createElement('a')
+        link.href = window.URL.createObjectURL(blob)
+        link.download = 'sftools-data.json'
+        link.click()
+      })
+    },
+    // ファイルを読み込む処理（保存はしない）
+    importJson(e){
+      const self = this
+      const file = e.target.files[0];
+
+      if (!file.type.match("application/json")) {
+        console.log("file type invalid.");
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.readAsText(file);
+
+      reader.onload = () => {
+        const persedData = JSON.parse(reader.result)
+
+        let importedData = []
+        if(self.importType === 'organizer'){
+          importedData = self.getAccountFromOrganizerJson(persedData.accounts)
+        }else{
+          importedData = persedData.accounts
+        }
+        
+        // 読み込み済みアカウントにセット
+        self.importedAccount = importedData
+      }
+    },
+    saveImportedAccount(){
+      if(!this.importedAccount) return;
+      // 読み込み済みアカウントを保存
+      console.log(this.importedAccount);
+      console.log(this.$store.state.accounts);
+      this.importedAccount.forEach(account=>this.$store.dispatch('insertAccount', account))
+      this.importedAccount = []
+      this.$refs.uploadFile.value=null;
+      this.$dialog.alert('インポート完了').then(() => {
+        console.log('Closed');
+      })
+  
+    },
+    getAccountFromOrganizerJson(accounts){
+      return accounts.map(account=>{
+        return new Account({
+          group: account.g,
+          displayName: account.n,
+          userName: account.u,
+          password: account.p,
+          orgType: account.r === "0" ? 'production' : 'sandbox'
+        })
+        
+      })
+    }
+  }
+}
+</script>
+
+<style>
+
+</style>

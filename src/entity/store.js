@@ -2,7 +2,7 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import shortid from 'shortid'
 import cloneDeep from 'clone-deep'
-import Account from '../entity/account'
+import Account from './account'
 
 Vue.use(Vuex)
 
@@ -24,7 +24,7 @@ const store = new Vuex.Store({
             
             const updateTargetIdx = updatedAccounts.findIndex(acc=>acc.id === accountCopy.id)
             if(updateTargetIdx === -1){
-                return
+                throw new Error('target account not found.')
             }
             updatedAccounts[updateTargetIdx] = accountCopy
 
@@ -35,8 +35,16 @@ const store = new Vuex.Store({
             console.log("insert")
             const updatedAccounts = [...state.accounts]
             const accountCopy = cloneDeep(account)
-            accountCopy.id = shortid.generate()
-            updatedAccounts.push(accountCopy)
+            
+            const updateTargetIdx = updatedAccounts.findIndex(acc=>acc.id === accountCopy.id)
+            if(updateTargetIdx > -1) {
+                // すでに同じidのデータがあれば、そのデータを上書きする
+                updatedAccounts[updateTargetIdx] = accountCopy
+            }else{
+                // 未登録なら、IDを採番して新規登録
+                accountCopy.id = shortid.generate()
+                updatedAccounts.push(accountCopy)
+            }
             chrome.storage.sync.set({accounts: updatedAccounts})
             commit('getAccountsMutation', updatedAccounts)
         },
@@ -55,6 +63,7 @@ const store = new Vuex.Store({
             
             // eslint-disable-next-line no-param-reassign
             state.accounts = [...accounts].map(account => new Account(account))
+            console.log(state.accounts);
         }
     }
 })

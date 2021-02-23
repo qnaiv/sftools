@@ -29,11 +29,19 @@ export default class Account{
         return `${this.loginUrl}/${this.loginParam}`
     }
 
+    get homeUrl(){
+      return `${this.loginUrlWithParam}&startURL=/lightning/page/home`
+    }
+
     get developerConsoleUrl() {
-        return `${this.loginUrlWithParam}&startURL=%2F_ui%2Fcommon%2Fapex%2Fdebug%2FApexCSIPage`
+        return `${this.loginUrlWithParam}&startURL=/_ui/common/apex/debug/ApexCSIPage`
     }
 
     get setupUrl() {
-      return `${this.loginUrlWithParam}&startURL=/setup/forcecomHomepage.apexp?setupid=ForceCom`
+      return `${this.loginUrlWithParam}&startURL=/lightning/setup/SetupOneHome/home`
+    }
+
+    get companyInfoUrl(){
+      return `${this.loginUrlWithParam}&startURL=/lightning/setup/CompanyProfileInfo/home`
     }
 }
