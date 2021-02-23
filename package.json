@@ -17,7 +17,7 @@
     "vuejs-dialog": "^1.4.2",
     "vuex": "^3.6.2"
   },
-  "description": "vue-chrome-extension-boilerplate",
+  "description": "sftools",
   "devDependencies": {
     "@babel/core": "^7.10.4",
     "@babel/preset-env": "^7.10.4",
@@ -52,10 +52,10 @@
     "webpack-extension-reloader": "^1.1.4"
   },
   "license": "MIT",
-  "name": "vue-chrome-extension-boilerplate",
+  "name": "sftools",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/mubaidr/vue-chrome-extension-boilerplate.git"
+    "url": "git+https://github.com/qnaiv/sftools.git"
   },
   "scripts": {
     "build": "npm run pack && npm run remove-evals && npm run zip",
@@ -65,5 +65,5 @@
     "remove-evals": "node scripts/remove-evals.js",
     "zip": "node scripts/build-zip.js"
   },
-  "version": "1.0.0"
+  "version": "1.1.0"
 }
