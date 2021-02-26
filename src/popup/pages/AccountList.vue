@@ -2,7 +2,7 @@
   <div>
     <div 
       v-shortkey="{up: ['arrowup'], down: ['arrowdown'], left: ['arrowleft'], right: ['arrowright'], enter: ['enter']}"
-      class="general-header columns is-mobile is-gapless"
+      class="header columns is-mobile is-gapless"
       @shortkey="keyboardAction"
     >
       <div class="field column">
@@ -31,82 +31,85 @@
         </router-link>
       </div>
     </div>
-    <div
-      v-for="(group, index) in groupedAccounts"
-      :key="index"
-      class="mb-4"
-    >
-      <div class="group-header is-flex">
-        <div>{{ group[0].group }} [{{ group.length }}]</div>
-        <div class="buttons controls">
-          <span
-            class="button is-light is-small"
-            @click="editGroup(group)"
-          >
-            <i class="mdi mdi-pencil" />
-          </span>
-
-          <span
-            class="button is-danger is-light is-small"
-            @click="deleteGroup(group)"
-          >
-            <i class="mdi mdi-delete" />
-          </span>
-        </div>
-      </div>
+    <div id="contents">
       <div
-        v-for="(account) in group"
-        :key="account.id"
-        class="box accounts"
-        :class="{'selectedRow': isSelectedRow(account)}"
+        v-for="(group, index) in groupedAccounts"
+        :key="index"
+        class="mb-4"
       >
-        <div class="controls">
-          <button
-            class="button is-primary"
-            :class="{'selectedCol': isSelectedRow(account) && selectedCol === 0}"
-            tabindex="-1"
-            @click="openHome(account)"
-          >
-            <span class="icon">
-              <i class="mdi mdi-folder-open" />
+        <div class="group-header is-flex">
+          <div>{{ group[0].group }} [{{ group.length }}]</div>
+          <div class="buttons controls">
+            <span
+              class="button is-light is-small"
+              @click="editGroup(group)"
+            >
+              <i class="mdi mdi-pencil" />
             </span>
-          </button>
-          <button
-            class="button"
-            :class="{'selectedCol': isSelectedRow(account) && selectedCol === 1}"
-            tabindex="-1"
-            @click="openSetup(account)"
-          >
-            <span class="icon">
-              <i class="mdi mdi-cog-outline" />
+
+            <span
+              class="button is-danger is-light is-small"
+              @click="deleteGroup(group)"
+            >
+              <i class="mdi mdi-delete" />
             </span>
-          </button>
-          <button
-            class="button is-light"
-            :class="{'selectedCol': isSelectedRow(account) && selectedCol === 2}"
-            tabindex="-1"
-            @click="openDevConsole(account)"
-          >
-            <span class="icon">
-              <i class="mdi mdi-console" />
-            </span>
-          </button>
+          </div>
         </div>
-        <div class="name pl-3">
-          <p>{{ account.displayName }}</p>
-          <p class="is-size-7">
-            {{ account.userName }}
-          </p>
-        </div>
-        <div class="edit">
-          <router-link
-            :to="{name: 'editAccount', params: {account}}"
-            tabindex="-1"
-          >
-            <span class="icon">
-              <i class="mdi mdi-cog-outline" />
-            </span>
-          </router-link>
+        <div
+          v-for="(account) in group"
+          :id="rowId(account)"
+          :key="account.id"
+          class="box accounts"
+          :class="{'selectedRow': isSelectedRow(account)}"
+        >
+          <div class="controls">
+            <button
+              class="button is-primary"
+              :class="{'selectedCol': isSelectedRow(account) && selectedCol === 0}"
+              tabindex="-1"
+              @click="openHome(account)"
+            >
+              <span class="icon">
+                <i class="mdi mdi-folder-open" />
+              </span>
+            </button>
+            <button
+              class="button"
+              :class="{'selectedCol': isSelectedRow(account) && selectedCol === 1}"
+              tabindex="-1"
+              @click="openSetup(account)"
+            >
+              <span class="icon">
+                <i class="mdi mdi-cog-outline" />
+              </span>
+            </button>
+            <button
+              class="button is-light"
+              :class="{'selectedCol': isSelectedRow(account) && selectedCol === 2}"
+              tabindex="-1"
+              @click="openDevConsole(account)"
+            >
+              <span class="icon">
+                <i class="mdi mdi-console" />
+              </span>
+            </button>
+          </div>
+          <div class="name pl-3">
+            <p>{{ account.displayName }}</p>
+            <p class="is-size-7">
+              {{ account.userName }}
+            </p>
+          </div>
+          <div class="edit">
+            <router-link
+              :to="{name: 'editAccount', params: {account}}"
+              tabindex="-1"
+            >
+              <span class="icon">
+                <i class="mdi mdi-cog-outline" />
+              </span>
+            </router-link>
+          </div>
         </div>
       </div>
     </div>
@@ -153,10 +156,16 @@ export default {
           const groupedAccounts = groupBy(this.filteredAccounts, account=>account.group)
           return groupedAccounts
         },
+        rowId(){
+          return account => account.id
+        },
+        selectedRowId(){
+          if(this.selectedRow < 0 || this.selectedRow >= this.filteredAccounts.length) return null
+          return this.filteredAccounts[this.selectedRow].id
+        },
         isSelectedRow(){
           return (account) => {
-            const idx = this.filteredAccounts.findIndex(acc => acc.id === account.id)
-            return this.selectedRow === idx
+            return this.selectedRowId === this.rowId(account)
           }
         }
     },
@@ -249,6 +258,7 @@ export default {
           return
         }
         this.selectedRow -= 1
+        this.$scrollTo(`#${this.selectedRowId}`, 0, {offset: -200, lazy: false})
       },
       cursorDown(){
         if(this.selectedRow >= this.filteredAccounts.length - 1) {
@@ -256,6 +266,7 @@ export default {
           return
         }
         this.selectedRow += 1
+          this.$scrollTo(`#${this.selectedRowId}`, 0, {offset: -200, lazy: false})
       },
       cursorLeft(){
         if(this.selectedCol < 1){
@@ -317,8 +328,16 @@ export default {
   .accounts .controls .button{
     margin: 0px !important;
     padding: 1rem !important;
-      }
-  .general-header .button{
+  }
+  .header{
+    position: sticky;
+    top: 0.75rem;
+    background-color: #ececec;
+    border-radius: 4px;
+    z-index: 9999;
+    padding: 5px;
+  }
+  .header .button{
     margin: 0px 0px 0px 5px !important;
     padding: 1rem !important;
   }
