@@ -1,7 +1,7 @@
 <template>
   <div>
     <div 
-      v-shortkey="{up: ['arrowup'], down: ['arrowdown'], left: ['arrowleft'], right: ['arrowright'], enter: ['enter']}"
+      v-shortkey="{up: ['arrowup'], down: ['arrowdown'], left: ['arrowleft'], right: ['arrowright'], altenter: ['alt','enter']}"
       class="header columns is-mobile is-gapless"
       @shortkey="keyboardAction"
     >
@@ -123,23 +123,32 @@ import cloneDeep from 'clone-deep'
 export default {
     data() {
       return {
-        accountFilterText: '',
+        innerAccountFilterText: '',
         selectedRow: -1,
         selectedCol: 0
       }
     },
     computed:{
+        accountFilterText: {
+          get(){
+            return this.innerAccountFilterText
+          },
+          set(value){
+            this.innerAccountFilterText = value
+            this.resetRowSelection()
+          }
+        },
         accounts() {
             return this.$store.state.accounts
         },
         filteredAccounts() {
           return this.accounts.filter(account=>{
             // フィルタ条件：検索ワードと前方一致するグループ、表示名、ユーザ名
-            if(!this.accountFilterText) return true
+            if(!this.innerAccountFilterText) return true
 
-            const matchesDisplayName = account.displayName.toLowerCase().indexOf(this.accountFilterText.toLowerCase()) !== -1
-            const matchesUserName = account.userName.toLowerCase().indexOf(this.accountFilterText.toLowerCase()) !== -1
-            const matchesGroup = account.group.toLowerCase().indexOf(this.accountFilterText.toLowerCase()) !== -1
+            const matchesDisplayName = account.displayName.toLowerCase().indexOf(this.innerAccountFilterText.toLowerCase()) !== -1
+            const matchesUserName = account.userName.toLowerCase().indexOf(this.innerAccountFilterText.toLowerCase()) !== -1
+            const matchesGroup = account.group.toLowerCase().indexOf(this.innerAccountFilterText.toLowerCase()) !== -1
             return matchesDisplayName || matchesUserName || matchesGroup
           }).sort((a,b)=>{
             // ソート条件：グループの昇順、表示名の昇順、ユーザ名の昇順
@@ -245,7 +254,7 @@ export default {
           case 'right':
             this.cursorRight()
             break
-          case 'enter': 
+          case 'altenter': 
             this.enterAction()
             break
           default:
@@ -300,6 +309,11 @@ export default {
           default: 
             break;
         }
+      },
+      resetRowSelection(){
+        console.log("reset");
+        this.selectedRow = -1
+        this.selectedCol = 0
       }
     }
 }
