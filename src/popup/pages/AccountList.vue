@@ -130,14 +130,23 @@ export default {
             return this.$store.state.accounts
         },
         filteredAccounts() {
-          console.log(this.accountFilterText);
           return this.accounts.filter(account=>{
+            // フィルタ条件：検索ワードと前方一致するグループ、表示名、ユーザ名
             if(!this.accountFilterText) return true
 
             const matchesDisplayName = account.displayName.toLowerCase().indexOf(this.accountFilterText.toLowerCase()) !== -1
             const matchesUserName = account.userName.toLowerCase().indexOf(this.accountFilterText.toLowerCase()) !== -1
             const matchesGroup = account.group.toLowerCase().indexOf(this.accountFilterText.toLowerCase()) !== -1
             return matchesDisplayName || matchesUserName || matchesGroup
+          }).sort((a,b)=>{
+            // ソート条件：グループの昇順、表示名の昇順、ユーザ名の昇順
+            if(a.group < b.group) return -1
+            if(a.group > b.group) return 1
+            if(a.displayName < b.displayName) return -1
+            if(a.displayName > b.displayName) return 1
+            if(a.userName < b.userName) return -1
+            if(a.userName > b.userName) return 1
+            return 0
           })
         },
         groupedAccounts() {
