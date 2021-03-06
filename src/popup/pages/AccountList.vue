@@ -179,7 +179,7 @@ export default {
         }
     },
     created(){
-        this.$store.dispatch('getAccounts')
+        this.$store.dispatch('loadAccountsFromStorage')
     },
     mounted () {
       this.$refs.accountFilter.focus();

@@ -7,6 +7,7 @@ export default class Account{
         this.password = acct.password || ''
         this.group = acct.group || 'general'
         this.orgType = acct.orgType || 'production'
+        this.isEncrypted = acct.isEncrypted || false
     }
 
     get loginUrl(){

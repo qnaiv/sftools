@@ -69,6 +69,7 @@
 
 <script>
 import Account from '../../entity/account'
+import AccountEncryptUtil from '../../entity/Account/AccountEncryptUtil'
 
 export default {
   data() {
@@ -77,7 +78,7 @@ export default {
       importType: 'sftools'
     }
   },created(){
-    this.$store.dispatch('getAccounts')
+    this.$store.dispatch('loadAccountsFromStorage')
   },
   methods:{
     exportJson(){
@@ -108,8 +109,10 @@ export default {
 
         let importedData = []
         if(self.importType === 'organizer'){
+          // ORganizer for salesforceからのインポート(sftool用のフォーマットに変換)
           importedData = self.getAccountFromOrganizerJson(persedData.accounts)
         }else{
+          // sftoolからのインポート
           importedData = persedData.accounts
         }
         
@@ -120,8 +123,6 @@ export default {
     saveImportedAccount(){
       if(!this.importedAccount) return;
       // 読み込み済みアカウントを保存
-      console.log(this.importedAccount);
-      console.log(this.$store.state.accounts);
       this.importedAccount.forEach(account=>this.$store.dispatch('insertAccount', account))
       this.importedAccount = []
       this.$refs.uploadFile.value=null;
@@ -137,9 +138,9 @@ export default {
           displayName: account.n,
           userName: account.u,
           password: account.p,
-          orgType: account.r === "0" ? 'production' : 'sandbox'
+          orgType: account.r === "0" ? 'production' : 'sandbox',
+          isEncrypted: false
         })
-        
       })
     }
   }
