@@ -180,6 +180,8 @@ export default {
     },
     created(){
         this.$store.dispatch('loadAccountsFromStorage')
+        this.$store.dispatch('loadSignUpInfoFromStorage')
+
     },
     mounted () {
       this.$refs.accountFilter.focus();
