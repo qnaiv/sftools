@@ -54,7 +54,7 @@
           </div>
         </div>
         <div class="field">
-          <label class="label">姓</label>
+          <label class="label">名</label>
           <div class="control">
             <input v-model="signUpInfo.firstName" type="text" class="input" />
           </div>
