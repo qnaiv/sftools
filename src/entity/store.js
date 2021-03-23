@@ -12,7 +12,8 @@ Vue.use(Vuex)
 // ストアの定義
 const store = new Vuex.Store({
     state: {
-        accounts: []
+        accounts: [],
+        signUpInfo: {}
     },
     actions: {
         /**
@@ -97,7 +98,17 @@ const store = new Vuex.Store({
 
             chrome.storage.sync.set({accounts: updatedAccounts})
             commit('setAccountsMutation', updatedAccounts)
-
+            
+        },
+        loadSignUpInfoFromStorage: state => {
+            chrome.storage.sync.get('signUpInfo', result =>{
+                // stateに反映
+                state.commit('setSignUpInfoMutation', result.signUpInfo)
+            })
+        },
+        updateSignUpInfo: ({ commit}, signUpInfo) => {
+            chrome.storage.sync.set({signUpInfo})
+            commit('setSignUpInfoMutation', signUpInfo)
         }
     },
     mutations: {
@@ -112,6 +123,10 @@ const store = new Vuex.Store({
             console.log(state.accounts);
             // eslint-disable-next-line no-param-reassign
             state.accounts = accounts
+        },
+        setSignUpInfoMutation (state, signUpInfo) {
+            // eslint-disable-next-line no-param-reassign
+            state.signUpInfo = signUpInfo
         }
     }
 })

@@ -2,6 +2,14 @@
   "browser_action": {
     "default_popup": "./popup.html"
   },
+  "content_scripts": [
+    {
+      "all_frames": false,
+      "js": ["./contentScripts.js"],
+      "matches": ["https://developer.salesforce.com/signup*"],
+      "run_at": "document_end"
+    }
+  ],
   "description": "sftools",
   "icons": {
     "16": "assets/icons/icon-16x16.png",
