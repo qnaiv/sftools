@@ -103,6 +103,13 @@
         Save
       </button>
       <button
+        v-if="!id"
+        class="button is-muted"
+        @click="createAccount"
+      >
+        Create
+      </button>
+      <button
         class="button is-link is-light"
         @click="cancel"
       >
@@ -120,7 +127,7 @@
 </template>
 
 <script>
-
+import querystring from 'querystring'
 export default {
     props: {
       account: {
@@ -169,6 +176,25 @@ export default {
             group: this.newGroup ? this.newGroup : this.group,
             orgType: this.orgType
           })
+          this.$router.push('/')
+        },
+        createAccount(){
+          const methodName = 'insertAccount'
+          this.$store.dispatch(methodName, {
+            displayName: this.displayName,
+            userName: this.userName,
+            password: this.password,
+            group: this.newGroup ? this.newGroup : this.group,
+            orgType: this.orgType
+          })
+
+          // サインアップ画面を開く
+          const signUpUrl = 'https://developer.salesforce.com/signup'
+          const {signUpInfo} = this.$store.state
+          signUpInfo.userName = this.userName
+          window.open(`${signUpUrl}?${querystring.stringify(signUpInfo)}`)
+
+          // ホーム画面に戻る
           this.$router.push('/')
         },
         deleteAccount(){
