@@ -188,22 +188,13 @@ export default {
     },
     methods: {
       openHome(account) {
-        chrome.tabs.create({
-          active: true,
-          url: account.homeUrl
-        })
+        window.open(account.homeUrl)
       },
       openDevConsole(account) {
-        chrome.tabs.create({
-          active: true,
-          url: account.developerConsoleUrl
-        })
+        window.open(account.developerConsoleUrl)
       },
       openSetup(account) {
-        chrome.tabs.create({
-          active: true,
-          url: account.setupUrl
-        })
+          window.open(account.setupUrl)
       },
       editGroup(group){
         this.$dialog.prompt({
