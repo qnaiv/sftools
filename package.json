@@ -16,8 +16,10 @@
     "vue-router": "^3.5.1",
     "vue-scrollto": "^2.20.0",
     "vue-shortkey": "^3.1.7",
+    "vuedraggable": "^2.24.2",
     "vuejs-dialog": "^1.4.2",
-    "vuex": "^3.6.2"
+    "vuex": "^3.6.2",
+    "webextension-polyfill": "^0.7.0"
   },
   "description": "sftools",
   "devDependencies": {

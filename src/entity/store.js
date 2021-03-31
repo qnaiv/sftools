@@ -2,6 +2,7 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 import shortid from 'shortid'
 import cloneDeep from 'clone-deep'
+import browser from 'webextension-polyfill'
 import Account from './account'
 import AccountEncryptUtil from './Account/AccountEncryptUtil'
 
@@ -20,18 +21,17 @@ const store = new Vuex.Store({
          * ストレージに保存されているアカウント情報をstateにセットする
          * @param {*} state 
          */
-        loadAccountsFromStorage: state =>{
-            chrome.storage.sync.get('accounts', result =>{
-                const accounts = [...result.accounts]
-                .map(acc=>new Account(acc))
-                .map(
-                    // パスワードが暗号化されている場合は復号化する
-                    acc => acc.isEncrypted ? AccountEncryptUtil.decryptAccount(acc) : acc
-                ) || []
+        loadAccountsFromStorage: async(state) =>{
+            const result = await browser.storage.sync.get('accounts')
+            const accounts = [...result.accounts]
+            .map(acc=>new Account(acc))
+            .map(
+                // パスワードが暗号化されている場合は復号化する
+                acc => acc.isEncrypted ? AccountEncryptUtil.decryptAccount(acc) : acc
+            ) || []
 
-                // stateに反映
-                state.commit('setAccountsMutation', accounts)
-            })
+            // stateに反映
+            state.commit('setAccountsMutation', accounts)
         },
         /**
          * アカウント情報を更新する
@@ -52,10 +52,24 @@ const store = new Vuex.Store({
             
             // ストレージ保存用の配列を生成(暗号化されていないパスワードを暗号化する)
             const accountsForStorge = updatedAccounts.map(acc=> acc.isEncrypted ? acc : AccountEncryptUtil.encryptAccount(acc))
-            chrome.storage.sync.set({accounts: accountsForStorge})
+            browser.storage.sync.set({accounts: accountsForStorge})
 
             // stateに反映
             commit('setAccountsMutation', updatedAccounts)
+        },
+        /**
+         * アカウント情報リストをリセットする
+         * 既存のアカウントリストを破棄し、引数で渡されたアカウントリストで保存しなおす。
+         */
+        resetAccounts: ({ commit, }, accounts) => {
+            console.log("reset")
+             
+            // ストレージ保存用の配列を生成(暗号化されていないパスワードを暗号化する)
+            const accountsForStorge = accounts.map(acc=> acc.isEncrypted ? acc : AccountEncryptUtil.encryptAccount(acc))
+            browser.storage.sync.set({accounts: accountsForStorge})
+
+            // stateに反映
+            commit('setAccountsMutation', accounts)
         },
         /**
          * アカウント情報を登録する
@@ -81,7 +95,7 @@ const store = new Vuex.Store({
             
             // ストレージ保存用の配列を生成(暗号化されていないパスワードを暗号化する)
             const accountsForStorge = updatedAccounts.map(acc=> acc.isEncrypted ? acc : AccountEncryptUtil.encryptAccount(acc))
-            chrome.storage.sync.set({accounts: accountsForStorge})
+            browser.storage.sync.set({accounts: accountsForStorge})
 
             // stateに反映
             commit('setAccountsMutation', updatedAccounts)
@@ -96,18 +110,16 @@ const store = new Vuex.Store({
             const deleteTargetIdx = updatedAccounts.findIndex(account=>account.id === accountId)
             updatedAccounts.splice(deleteTargetIdx,1)
 
-            chrome.storage.sync.set({accounts: updatedAccounts})
+            browser.storage.sync.set({accounts: updatedAccounts})
             commit('setAccountsMutation', updatedAccounts)
             
         },
-        loadSignUpInfoFromStorage: state => {
-            chrome.storage.sync.get('signUpInfo', result =>{
-                // stateに反映
-                state.commit('setSignUpInfoMutation', result.signUpInfo)
-            })
+        loadSignUpInfoFromStorage: async(state) => {
+            const result = await browser.storage.sync.get('signUpInfo')
+            state.commit('setSignUpInfoMutation', result.signUpInfo)
         },
         updateSignUpInfo: ({ commit}, signUpInfo) => {
-            chrome.storage.sync.set({signUpInfo})
+            browser.storage.sync.set({signUpInfo})
             commit('setSignUpInfoMutation', signUpInfo)
         }
     },
