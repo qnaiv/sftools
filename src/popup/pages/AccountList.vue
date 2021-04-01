@@ -36,10 +36,7 @@
       </div>
     </div>
     <div id="contents">
-      <draggable
-        v-model="groupedAccounts"
-        @end="onAccountMoved()"
-      >
+      <draggable v-model="groupedAccounts" @end="onAccountMoved()">
         <div
           v-for="(group, index) in groupedAccounts"
           :key="index"
@@ -65,12 +62,12 @@
           </div>
           <draggable
             v-model="group.accounts"
-            @end="onAccountMoved()"
             group="accuonts"
+            @end="onAccountMoved()"
           >
             <div
               v-for="account in group.accounts"
-              :id="rowId(account)"
+              :id="account.id"
               :key="account.id"
               class="box accounts"
               :class="{ selectedRow: isSelectedRow(account) }"
@@ -171,22 +168,25 @@ export default {
       },
       set(value) {
         this.innerAccountFilterText = value
+        const filtered = this.filterAccounts(this.$store.state.accounts)
+        this.groupedAccounts = this.groupingAccounts(filtered)
         this._resetRowSelection()
       },
     },
-    rowId() {
-      return (account) => account.id
-    },
     isSelectedRow() {
-      return (account) => this._selectedRowId === this.rowId(account)
+      return account => this._selectedRowId === account.id
     },
     _selectedRowId() {
       if (
         this.selectedRow < 0 ||
-        this.selectedRow >= this._filteredAccounts.length
-      )
+        this.selectedRow >= this._flatGroupedAccounts.length
+      ) {
         return null
-      return this._filteredAccounts[this.selectedRow].id
+      }
+      return this._flatGroupedAccounts[this.selectedRow].id
+    },
+    _flatGroupedAccounts() {
+      return this.groupedAccounts.map(group => group.accounts).flat()
     },
   },
   async created() {
@@ -194,23 +194,21 @@ export default {
     await this.$store.dispatch('loadAccountsFromStorage')
     await this.$store.dispatch('loadSignUpInfoFromStorage')
     const filtered = this.filterAccounts(this.$store.state.accounts)
-    this.groupedAccounts = cloneDeep(this.groupingAccounts(filtered))
-    console.log(this.groupedAccounts)
+    this.groupedAccounts = this.groupingAccounts(filtered)
   },
   mounted() {
     this.$refs.accountFilter.focus()
   },
   methods: {
     groupingAccounts(accounts) {
-      const groupedAccounts = groupBy(accounts, (account) => account.group)
-      const formated = Object.entries(groupedAccounts).map((entry) => {
+      const groupedAccounts = groupBy(accounts, account => account.group)
+      const formated = Object.entries(groupedAccounts).map(entry => {
         return { groupName: entry[0], accounts: entry[1] }
       })
-      console.log(formated)
       return formated
     },
     filterAccounts(accounts) {
-      return accounts.filter((account) => {
+      return accounts.filter(account => {
         // フィルタ条件：検索ワードと前方一致するグループ、表示名、ユーザ名
         if (!this.innerAccountFilterText) return true
 
@@ -231,19 +229,14 @@ export default {
     },
     onAccountMoved() {
       // グループ間のアカウント移動をAccount.groupに反映
-      this.groupedAccounts.forEach(group=>{
-        group.accounts.forEach(account=>{
+      this.groupedAccounts.forEach(group => {
+        group.accounts.forEach(account => {
           account.group = group.groupName
         })
       })
 
-      // Accountリストに整形
-      const updatedAccounts = this.groupedAccounts.map(group => group.accounts).flat()
-
       // ストレージ更新
-      // updatedAccounts.forEach(account=>this.$store.dispatch('resetAccounts', account))
-      this.$store.dispatch('resetAccounts', updatedAccounts)
-
+      this.$store.dispatch('resetAccounts', this._flatGroupedAccounts)
     },
     openHome(account) {
       window.open(account.homeUrl)
@@ -264,16 +257,16 @@ export default {
             promptHelp: '新しいグループ名を入力してください',
           }
         )
-        .then((dialog) => {
+        .then(dialog => {
           if (!dialog.data) return
 
-          group.forEach((account) => {
+          group.forEach(account => {
             const updatedAccount = cloneDeep(account)
             updatedAccount.group = dialog.data
             this.$store.dispatch('updateAccount', updatedAccount)
           })
         })
-        .catch((e) => {
+        .catch(e => {
           console.log('実行はキャンセルされました')
           console.log(e)
         })
@@ -292,11 +285,11 @@ export default {
           }
         )
         .then(() => {
-          group.forEach((account) => {
+          group.forEach(account => {
             self.$store.dispatch('deleteAccount', account.id)
           })
         })
-        .catch((e) => {
+        .catch(e => {
           console.log('実行はキャンセルされました')
           console.log(e)
         })
@@ -328,17 +321,19 @@ export default {
         return
       }
       this.selectedRow -= 1
+
       this.$scrollTo(`#${this._selectedRowId}`, 0, {
         offset: -200,
         lazy: false,
       })
     },
     cursorDown() {
-      if (this.selectedRow >= this._filteredAccounts.length - 1) {
-        this.selectedRow = this._filteredAccounts.length - 1
+      if (this.selectedRow >= this._flatGroupedAccounts.length - 1) {
+        this.selectedRow = this._flatGroupedAccounts.length - 1
         return
       }
       this.selectedRow += 1
+
       this.$scrollTo(`#${this._selectedRowId}`, 0, {
         offset: -200,
         lazy: false,
@@ -362,7 +357,7 @@ export default {
     enterAction() {
       if (this.selectedRow < 0) return
 
-      const targetAccount = this._filteredAccounts[this.selectedRow]
+      const targetAccount = this._flatGroupedAccounts[this.selectedRow]
       switch (this.selectedCol) {
         case 0:
           this.openHome(targetAccount)
