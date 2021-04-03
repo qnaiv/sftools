@@ -128,6 +128,7 @@
 
 <script>
 import querystring from 'querystring'
+
 export default {
     props: {
       account: {
@@ -190,7 +191,7 @@ export default {
 
           // サインアップ画面を開く
           const signUpUrl = 'https://developer.salesforce.com/signup'
-          const {signUpInfo} = this.$store.state
+          const {signUpInfo} = this.$store.state || {}
           signUpInfo.userName = this.userName
           window.open(`${signUpUrl}?${querystring.stringify(signUpInfo)}`)
 
