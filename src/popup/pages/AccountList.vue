@@ -49,7 +49,7 @@
         >
           <draggable
             v-model="group.accounts"
-            group="accuonts"
+            group="accounts"
             @end="onAccountMoved()"
           >
             <Account
@@ -256,7 +256,6 @@ export default {
       })
     },
     _resetRowSelection() {
-      console.log('reset')
       this.selectedRow = -1
       this.selectedCol = 0
     },

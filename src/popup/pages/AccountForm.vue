@@ -1,47 +1,93 @@
 <template>
-  <div>
+  <ValidationObserver v-slot="{ invalid }">
     <h4 class="title is-4">
       アカウントを新規登録
     </h4>
-    <div class="field">
-      <label class="label">Display Name</label>
-      <div class="control">
-        <input
-          v-model="displayName"
-          type="text"
-          class="input"
-        >
+    <ValidationProvider
+      v-slot="{ errors }"
+      rules="required"
+      name="Display Name"
+    >
+      <div class="field">
+        <label class="label">Display Name</label>
+        <div class="control">
+          <input
+            v-model="displayName"
+            type="text"
+            class="input"
+          >
+        </div>
+        <div class="text-danger">
+          {{ errors[0] }}
+        </div>
       </div>
-    </div>
-    <div class="field">
-      <label class="label">User Name</label>
-      <div class="control">
-        <input
-          v-model="userName"
-          type="text"
-          class="input"
-        >
+    </ValidationProvider>
+    <ValidationProvider
+      v-slot="{ errors }"
+      rules="required"
+      name="User Name"
+    >
+      <div class="field">
+        <label class="label">User Name</label>
+        <div class="control">
+          <input
+            v-model="userName"
+            type="text"
+            class="input"
+          >
+        </div>
+        <div class="text-danger">
+          {{ errors[0] }}
+        </div>
       </div>
-    </div>
-    <label class="label">Password</label>
-    <div class="field has-addons">
-      <div class="control">
-        <input
-          v-model="password"
-          :type="showPassword ? 'text' : 'password'"
-          class="input is-fullwidth"
-        >
+    </ValidationProvider>
+    <ValidationProvider
+      v-slot="{ errors }"
+      vid="password"
+      rules="required"
+      name="Password"
+    >
+      <label class="label">Password</label>
+      <div class="field has-addons">
+        <div class="control">
+          <input
+            v-model="password"
+            :type="showPassword ? 'text' : 'password'"
+            class="input is-fullwidth"
+          >
+        </div>
+        <div class="control">
+          <a
+            class="button"
+            @click="showPassword = !showPassword"
+          >
+            Show
+          </a>
+        </div>
       </div>
-      <div class="control">
-        <a
-          class="button"
-          @click="showPassword = !showPassword"
-        >
-          Show
-        </a>
+      <div class="text-danger">
+        {{ errors[0] }}
       </div>
-    </div>
-         
+    </ValidationProvider>
+    <ValidationProvider
+      v-slot="{ errors }"
+      rules="required|passwordConfirmed:password"
+      name="ConfirmedPassword"
+    >
+      <label class="label">ConfirmPassword</label>
+      <div class="field">
+        <div class="control">
+          <input
+            v-model="confirmPassword"
+            type="password"
+            class="input is-fullwidth"
+          >
+        </div>
+        <div class="text-danger">
+          {{ errors[0] }}
+        </div>
+      </div>
+    </ValidationProvider>
     <div class="field">
       <label class="label">Group:</label>
       <div class="control">
@@ -98,13 +144,15 @@
     <div class="buttons account-form-buttons">
       <button
         class="button is-primary"
+        :disabled="invalid"
         @click="saveAccount"
       >
         Save
       </button>
       <button
-        v-if="!id"
+        v-if="!id && isExistSignUpInfo"
         class="button is-muted"
+        :disabled="invalid"
         @click="createAccount"
       >
         Create
@@ -123,13 +171,23 @@
         Delete
       </button>
     </div>
-  </div>
+  </ValidationObserver>
 </template>
 
 <script>
 import querystring from 'querystring'
+import { ValidationProvider, extend, ValidationObserver } from 'vee-validate';
+import { required, confirmed } from 'vee-validate/dist/rules';
+
+extend('required', required);
+extend('passwordConfirmed', confirmed);
+
 
 export default {
+    components: {
+      ValidationProvider,
+      ValidationObserver
+    },
     props: {
       account: {
         type: Object,
@@ -152,6 +210,13 @@ export default {
       groups() {
         const uniqueGroupList = Array.from(new Set(this.$store.state.accounts.map((account) => account.group)))
         return uniqueGroupList
+      },
+      isExistSignUpInfo() {
+        const {signUpInfo} = this.$store.state
+        if(signUpInfo){
+          return true
+        }
+        return false
       }
     },
     created(){
@@ -163,6 +228,7 @@ export default {
       this.displayName = this.account.displayName || ''
       this.userName = this.account.userName || ''
       this.password = this.account.password || ''
+      this.confirmPassword = this.account.password || ''
       this.group = this.account.group || 'general'
       this.orgType = this.account.orgType || 'production'
     },
