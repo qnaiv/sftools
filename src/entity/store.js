@@ -6,9 +6,7 @@ import browser from 'webextension-polyfill'
 import Account from './account'
 import AccountEncryptUtil from './Account/AccountEncryptUtil'
 
-
 Vue.use(Vuex)
-
 
 // ストアの定義
 const store = new Vuex.Store({
@@ -22,7 +20,7 @@ const store = new Vuex.Store({
          * @param {*} state 
          */
         loadAccountsFromStorage: async(state) =>{
-            const result = await browser.storage.sync.get('accounts')
+            const result = await browser.storage.local.get('accounts')
             const accounts = [...result.accounts]
             .map(acc=>new Account(acc))
             .map(
@@ -52,7 +50,7 @@ const store = new Vuex.Store({
             
             // ストレージ保存用の配列を生成(暗号化されていないパスワードを暗号化する)
             const accountsForStorge = updatedAccounts.map(acc=> acc.isEncrypted ? acc : AccountEncryptUtil.encryptAccount(acc))
-            browser.storage.sync.set({accounts: accountsForStorge})
+            browser.storage.local.set({accounts: accountsForStorge})
 
             // stateに反映
             commit('setAccountsMutation', updatedAccounts)
@@ -66,7 +64,7 @@ const store = new Vuex.Store({
              
             // ストレージ保存用の配列を生成(暗号化されていないパスワードを暗号化する)
             const accountsForStorge = accounts.map(acc=> acc.isEncrypted ? acc : AccountEncryptUtil.encryptAccount(acc))
-            browser.storage.sync.set({accounts: accountsForStorge})
+            browser.storage.local.set({accounts: accountsForStorge})
 
             // stateに反映
             commit('setAccountsMutation', accounts)
@@ -95,7 +93,7 @@ const store = new Vuex.Store({
             
             // ストレージ保存用の配列を生成(暗号化されていないパスワードを暗号化する)
             const accountsForStorge = updatedAccounts.map(acc=> acc.isEncrypted ? acc : AccountEncryptUtil.encryptAccount(acc))
-            browser.storage.sync.set({accounts: accountsForStorge})
+            browser.storage.local.set({accounts: accountsForStorge})
 
             // stateに反映
             commit('setAccountsMutation', updatedAccounts)
@@ -110,16 +108,16 @@ const store = new Vuex.Store({
             const deleteTargetIdx = updatedAccounts.findIndex(account=>account.id === accountId)
             updatedAccounts.splice(deleteTargetIdx,1)
 
-            browser.storage.sync.set({accounts: updatedAccounts})
+            browser.storage.local.set({accounts: updatedAccounts})
             commit('setAccountsMutation', updatedAccounts)
             
         },
         loadSignUpInfoFromStorage: async(state) => {
-            const result = await browser.storage.sync.get('signUpInfo')
+            const result = await browser.storage.local.get('signUpInfo')
             state.commit('setSignUpInfoMutation', result.signUpInfo)
         },
         updateSignUpInfo: ({ commit}, signUpInfo) => {
-            browser.storage.sync.set({signUpInfo})
+            browser.storage.local.set({signUpInfo})
             commit('setSignUpInfoMutation', signUpInfo)
         }
     },
