@@ -22,4 +22,8 @@ body{
   max-height: 500px !important;
   min-height: 500px !important;
 }
+.text-danger{
+  color: red;
+  font-size: 0.8em;
+}
 </style>

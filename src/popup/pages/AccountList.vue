@@ -19,7 +19,7 @@
             type="text"
             class="input"
             placeholder="filter by group/account/display name"
-          />
+          >
         </div>
       </div>
       <div class="buttons has-text-right column is-half">
@@ -65,8 +65,8 @@
           </div>
           <draggable
             v-model="group.accounts"
+            group="accounts"
             @end="onAccountMoved()"
-            group="accuonts"
           >
             <div
               v-for="account in group.accounts"
@@ -210,6 +210,7 @@ export default {
       return formated
     },
     filterAccounts(accounts) {
+      console.log('filter start');
       return accounts.filter((account) => {
         // フィルタ条件：検索ワードと前方一致するグループ、表示名、ユーザ名
         if (!this.innerAccountFilterText) return true
@@ -378,7 +379,6 @@ export default {
       }
     },
     _resetRowSelection() {
-      console.log('reset')
       this.selectedRow = -1
       this.selectedCol = 0
     },
