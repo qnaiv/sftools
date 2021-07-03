@@ -19,7 +19,7 @@
             type="text"
             class="input"
             placeholder="filter by group/account/display name"
-          />
+          >
         </div>
       </div>
       <div class="buttons has-text-right column is-half">
@@ -65,8 +65,8 @@
           </div>
           <draggable
             v-model="group.accounts"
-            @end="onAccountMoved()"
             group="accuonts"
+            @end="onAccountMoved()"
           >
             <div
               v-for="account in group.accounts"
@@ -395,6 +395,7 @@ export default {
 }
 .accounts .name {
   padding: 0 10px;
+  word-break: break-all;
 }
 .accounts .edit {
   margin-left: auto;
@@ -405,6 +406,9 @@ export default {
 .group-header .button {
   margin: 0px 5px 10px 5px !important;
   padding: 0.5rem !important;
+}
+.accounts .controls {
+  width: 130px;
 }
 .accounts .controls .button {
   margin: 0px !important;

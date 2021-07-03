@@ -1,4 +1,7 @@
 {
+  "background": {
+    "scripts": ["./background.js"]
+  },
   "browser_action": {
     "default_popup": "./popup.html"
   },
@@ -23,7 +26,8 @@
     "page": "./options.html"
   },
   "permissions": [
-    "storage"
+    "storage",
+    "background"
   ],
   "commands": {
     "_execute_browser_action": {
