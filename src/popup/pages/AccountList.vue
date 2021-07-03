@@ -40,98 +40,30 @@
         v-model="groupedAccounts"
         @end="onAccountMoved()"
       >
-        <div
+        <AccountGroup
           v-for="(group, index) in groupedAccounts"
           :key="index"
-          class="mb-4"
+          :group="group"
+          :on-delete-group="refreshSearchResult"
+          :on-rename-group="refreshSearchResult"
         >
-          <div class="group-header is-flex">
-            <div>{{ group.groupName }} [{{ group.accounts.length }}]</div>
-            <div class="buttons controls">
-              <span
-                class="button is-light is-small"
-                @click="editGroup(group.accounts)"
-              >
-                <i class="mdi mdi-pencil" />
-              </span>
-
-              <span
-                class="button is-danger is-light is-small"
-                @click="deleteGroup(group.accounts)"
-              >
-                <i class="mdi mdi-delete" />
-              </span>
-            </div>
-          </div>
           <draggable
             v-model="group.accounts"
             group="accounts"
             @end="onAccountMoved()"
           >
-            <div
+            <Account
               v-for="account in group.accounts"
-              :id="rowId(account)"
               :key="account.id"
-              class="box accounts"
-              :class="{ selectedRow: isSelectedRow(account) }"
-            >
-              <div class="controls">
-                <button
-                  class="button is-primary"
-                  :class="{
-                    selectedCol: isSelectedRow(account) && selectedCol === 0,
-                  }"
-                  tabindex="-1"
-                  @click="openHome(account)"
-                >
-                  <span class="icon">
-                    <i class="mdi mdi-folder-open" />
-                  </span>
-                </button>
-                <button
-                  class="button"
-                  :class="{
-                    selectedCol: isSelectedRow(account) && selectedCol === 1,
-                  }"
-                  tabindex="-1"
-                  @click="openSetup(account)"
-                >
-                  <span class="icon">
-                    <i class="mdi mdi-cog-outline" />
-                  </span>
-                </button>
-                <button
-                  class="button is-light"
-                  :class="{
-                    selectedCol: isSelectedRow(account) && selectedCol === 2,
-                  }"
-                  tabindex="-1"
-                  @click="openDevConsole(account)"
-                >
-                  <span class="icon">
-                    <i class="mdi mdi-console" />
-                  </span>
-                </button>
-              </div>
-              <div class="name pl-3">
-                <p>{{ account.displayName }}</p>
-                <p class="is-size-7">
-                  {{ account.userName }}
-                </p>
-              </div>
-              <div class="edit">
-                <router-link
-                  :to="{ name: 'editAccount', params: { account } }"
-                  tabindex="-1"
-                >
-                  <span class="icon">
-                    <i class="mdi mdi-cog-outline" />
-                  </span>
-                </router-link>
-              </div>
-            </div>
+              :account="account"
+              :is-selected="isSelectedRow(account)"
+              :selected-col="selectedCol"
+              :on-click-home="openHome"
+              :on-click-setup="openSetup"
+              :on-click-dev-console="openDevConsole"
+            />
           </draggable>
-        </div>
+        </AccountGroup>
       </draggable>
     </div>
   </div>
@@ -139,12 +71,15 @@
 
 <script>
 import groupBy from 'lodash-es/groupBy'
-import cloneDeep from 'clone-deep'
 import draggable from 'vuedraggable'
+import Account from '../components/Account.vue'
+import AccountGroup from '../components/AccountGroup.vue'
 
 export default {
   components: {
     draggable,
+    Account,
+    AccountGroup,
   },
   data() {
     return {
@@ -152,16 +87,6 @@ export default {
       selectedRow: -1,
       selectedCol: 0,
       groupedAccounts: [],
-      testData: [
-        {
-          groupName: 'a',
-          items: ['1', '2', '3'],
-        },
-        {
-          groupName: 'b',
-          items: ['4', '5', '6'],
-        },
-      ],
     }
   },
   computed: {
@@ -171,80 +96,46 @@ export default {
       },
       set(value) {
         this.innerAccountFilterText = value
+        this.refreshSearchResult()
         this._resetRowSelection()
       },
     },
-    rowId() {
-      return (account) => account.id
-    },
     isSelectedRow() {
-      return (account) => this._selectedRowId === this.rowId(account)
+      return account => this._selectedRowId === account.id
     },
     _selectedRowId() {
       if (
         this.selectedRow < 0 ||
-        this.selectedRow >= this._filteredAccounts.length
-      )
+        this.selectedRow >= this._flatGroupedAccounts.length
+      ) {
         return null
-      return this._filteredAccounts[this.selectedRow].id
+      }
+      return this._flatGroupedAccounts[this.selectedRow].id
+    },
+    _flatGroupedAccounts() {
+      return this.groupedAccounts.map(group => group.accounts).flat()
     },
   },
   async created() {
     // アカウント情報、サインイン自動入力情報を読み込む
     await this.$store.dispatch('loadAccountsFromStorage')
     await this.$store.dispatch('loadSignUpInfoFromStorage')
-    const filtered = this.filterAccounts(this.$store.state.accounts)
-    this.groupedAccounts = cloneDeep(this.groupingAccounts(filtered))
-    console.log(this.groupedAccounts)
+    this.refreshSearchResult()
   },
   mounted() {
     this.$refs.accountFilter.focus()
   },
   methods: {
-    groupingAccounts(accounts) {
-      const groupedAccounts = groupBy(accounts, (account) => account.group)
-      const formated = Object.entries(groupedAccounts).map((entry) => {
-        return { groupName: entry[0], accounts: entry[1] }
-      })
-      console.log(formated)
-      return formated
-    },
-    filterAccounts(accounts) {
-      console.log('filter start');
-      return accounts.filter((account) => {
-        // フィルタ条件：検索ワードと前方一致するグループ、表示名、ユーザ名
-        if (!this.innerAccountFilterText) return true
-
-        const matchesDisplayName =
-          account.displayName
-            .toLowerCase()
-            .indexOf(this.innerAccountFilterText.toLowerCase()) !== -1
-        const matchesUserName =
-          account.userName
-            .toLowerCase()
-            .indexOf(this.innerAccountFilterText.toLowerCase()) !== -1
-        const matchesGroup =
-          account.group
-            .toLowerCase()
-            .indexOf(this.innerAccountFilterText.toLowerCase()) !== -1
-        return matchesDisplayName || matchesUserName || matchesGroup
-      })
-    },
     onAccountMoved() {
       // グループ間のアカウント移動をAccount.groupに反映
-      this.groupedAccounts.forEach(group=>{
-        group.accounts.forEach(account=>{
+      this.groupedAccounts.forEach(group => {
+        group.accounts.forEach(account => {
           account.group = group.groupName
         })
       })
 
-      // Accountリストに整形
-      const updatedAccounts = this.groupedAccounts.map(group => group.accounts).flat()
-
       // ストレージ更新
-      // updatedAccounts.forEach(account=>this.$store.dispatch('resetAccounts', account))
-      this.$store.dispatch('resetAccounts', updatedAccounts)
-
+      this.$store.dispatch('resetAccounts', this._flatGroupedAccounts)
     },
     openHome(account) {
       window.open(account.homeUrl)
@@ -254,53 +145,6 @@ export default {
     },
     openSetup(account) {
       window.open(account.setupUrl)
-    },
-    editGroup(group) {
-      this.$dialog
-        .prompt(
-          {
-            title: '',
-          },
-          {
-            promptHelp: '新しいグループ名を入力してください',
-          }
-        )
-        .then((dialog) => {
-          if (!dialog.data) return
-
-          group.forEach((account) => {
-            const updatedAccount = cloneDeep(account)
-            updatedAccount.group = dialog.data
-            this.$store.dispatch('updateAccount', updatedAccount)
-          })
-        })
-        .catch((e) => {
-          console.log('実行はキャンセルされました')
-          console.log(e)
-        })
-    },
-    deleteGroup(group) {
-      const self = this
-      this.$dialog
-        .confirm(
-          {
-            title: '確認',
-            body: 'グループに紐づくアカウントを全て削除してもよろしいですか？',
-          },
-          {
-            okText: 'はい',
-            cancelText: 'キャンセル',
-          }
-        )
-        .then(() => {
-          group.forEach((account) => {
-            self.$store.dispatch('deleteAccount', account.id)
-          })
-        })
-        .catch((e) => {
-          console.log('実行はキャンセルされました')
-          console.log(e)
-        })
     },
     keyboardAction(event) {
       switch (event.srcKey) {
@@ -329,17 +173,19 @@ export default {
         return
       }
       this.selectedRow -= 1
+
       this.$scrollTo(`#${this._selectedRowId}`, 0, {
         offset: -200,
         lazy: false,
       })
     },
     cursorDown() {
-      if (this.selectedRow >= this._filteredAccounts.length - 1) {
-        this.selectedRow = this._filteredAccounts.length - 1
+      if (this.selectedRow >= this._flatGroupedAccounts.length - 1) {
+        this.selectedRow = this._flatGroupedAccounts.length - 1
         return
       }
       this.selectedRow += 1
+
       this.$scrollTo(`#${this._selectedRowId}`, 0, {
         offset: -200,
         lazy: false,
@@ -363,7 +209,7 @@ export default {
     enterAction() {
       if (this.selectedRow < 0) return
 
-      const targetAccount = this._filteredAccounts[this.selectedRow]
+      const targetAccount = this._flatGroupedAccounts[this.selectedRow]
       switch (this.selectedCol) {
         case 0:
           this.openHome(targetAccount)
@@ -377,6 +223,37 @@ export default {
         default:
           break
       }
+    },
+    refreshSearchResult() {
+      const filtered = this._filterAccounts(this.$store.state.accounts)
+      this.groupedAccounts = this._groupAccounts(filtered)
+    },
+    _groupAccounts(accounts) {
+      const groupedAccounts = groupBy(accounts, account => account.group)
+      const formated = Object.entries(groupedAccounts).map(entry => {
+        return { groupName: entry[0], accounts: entry[1] }
+      })
+      return formated
+    },
+    _filterAccounts(accounts) {
+      return accounts.filter(account => {
+        // フィルタ条件：検索ワードと前方一致するグループ、表示名、ユーザ名
+        if (!this.innerAccountFilterText) return true
+
+        const matchesDisplayName =
+          account.displayName
+            .toLowerCase()
+            .indexOf(this.innerAccountFilterText.toLowerCase()) !== -1
+        const matchesUserName =
+          account.userName
+            .toLowerCase()
+            .indexOf(this.innerAccountFilterText.toLowerCase()) !== -1
+        const matchesGroup =
+          account.group
+            .toLowerCase()
+            .indexOf(this.innerAccountFilterText.toLowerCase()) !== -1
+        return matchesDisplayName || matchesUserName || matchesGroup
+      })
     },
     _resetRowSelection() {
       this.selectedRow = -1
@@ -395,6 +272,7 @@ export default {
 }
 .accounts .name {
   padding: 0 10px;
+  word-break: break-all;
 }
 .accounts .edit {
   margin-left: auto;
@@ -405,6 +283,9 @@ export default {
 .group-header .button {
   margin: 0px 5px 10px 5px !important;
   padding: 0.5rem !important;
+}
+.accounts .controls {
+  width: 130px;
 }
 .accounts .controls .button {
   margin: 0px !important;
@@ -421,11 +302,5 @@ export default {
 .header .button {
   margin: 0px 0px 0px 5px !important;
   padding: 1rem !important;
-}
-.selectedRow {
-  border: 2px solid #7ba8da;
-}
-.selectedCol {
-  border: 2px solid #a0a0a0 !important;
 }
 </style>

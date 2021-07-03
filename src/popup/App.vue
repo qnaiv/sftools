@@ -15,12 +15,8 @@ export default {
 
 <style>
 body{
-  width: 600px !important;
-  min-width: 600px !important;
-  max-width: 600px !important;
+  width: 500px !important;
   height: 500px !important;
-  max-height: 500px !important;
-  min-height: 500px !important;
 }
 .text-danger{
   color: red;

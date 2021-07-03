@@ -182,6 +182,7 @@ import { required, confirmed } from 'vee-validate/dist/rules';
 extend('required', required);
 extend('passwordConfirmed', confirmed);
 
+
 export default {
     components: {
       ValidationProvider,
@@ -256,7 +257,7 @@ export default {
 
           // サインアップ画面を開く
           const signUpUrl = 'https://developer.salesforce.com/signup'
-          const {signUpInfo} = this.$store.state
+          const {signUpInfo} = this.$store.state || {}
           signUpInfo.userName = this.userName
           window.open(`${signUpUrl}?${querystring.stringify(signUpInfo)}`)
 
