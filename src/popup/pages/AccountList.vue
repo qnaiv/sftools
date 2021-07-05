@@ -264,33 +264,6 @@ export default {
 </script>
 
 <style scoped>
-.accounts {
-  display: flex;
-  align-items: center;
-  margin: 5px;
-  padding: 2px 10px;
-}
-.accounts .name {
-  padding: 0 10px;
-  word-break: break-all;
-}
-.accounts .edit {
-  margin-left: auto;
-}
-.group-header .controls {
-  margin-left: auto;
-}
-.group-header .button {
-  margin: 0px 5px 10px 5px !important;
-  padding: 0.5rem !important;
-}
-.accounts .controls {
-  width: 130px;
-}
-.accounts .controls .button {
-  margin: 0px !important;
-  padding: 1rem !important;
-}
 .header {
   position: sticky;
   top: 0.75rem;
