@@ -15,7 +15,7 @@ export default {
 
 <style>
 body{
-  width: 500px !important;
+  width: 600px !important;
   height: 500px !important;
 }
 .text-danger{

@@ -85,10 +85,13 @@ export default {
 }
 .accounts .name {
   padding: 0 10px;
+  word-break: break-all;
+  flex: 1;
 }
 .accounts .edit {
   margin-left: auto;
 }
+
 .accounts .controls .button {
   margin: 0px !important;
   padding: 1rem !important;
