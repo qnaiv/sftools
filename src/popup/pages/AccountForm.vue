@@ -153,9 +153,9 @@
         v-if="!id && isExistSignUpInfo"
         class="button is-muted"
         :disabled="invalid"
-        @click="createAccount"
+        @click="signupAccount"
       >
-        Create
+        Signup
       </button>
       <button
         class="button is-link is-light"
@@ -245,7 +245,7 @@ export default {
           })
           this.$router.push('/')
         },
-        createAccount(){
+        signupAccount(){
           const methodName = 'insertAccount'
           this.$store.dispatch(methodName, {
             displayName: this.displayName,
