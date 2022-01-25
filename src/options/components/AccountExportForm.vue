@@ -23,7 +23,7 @@ import browser from 'webextension-polyfill'
 export default {
   methods: {
     async exportJson() {
-      const result = await browser.storage.sync.get('accounts')
+      const result = await browser.storage.local.get('accounts')
       const exportData = JSON.stringify(result)
       const blob = new Blob([exportData], { type: 'application/json' })
       const link = document.createElement('a')
