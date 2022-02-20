@@ -20,6 +20,7 @@ function configFunc(env, argv) {
       popup: './popup/index.js',
       background: './background/index.js',
       contentScripts: './contentScripts/index.js',
+      contentScriptsLogin: './contentScripts/login.js',
     },
     output: {
       path: path.resolve(__dirname, './dist'),
@@ -126,6 +127,7 @@ function configFunc(env, argv) {
       new webpack.HotModuleReplacementPlugin(),
       new ExtensionReloader({
         contentScript: 'contentScripts',
+        contentScriptsLogin: 'contentScriptsLogin',
         background: 'background',
         extensionPage: 'popup',
         options: 'options',

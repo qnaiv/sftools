@@ -11,6 +11,12 @@
       "js": ["./contentScripts.js"],
       "matches": ["https://developer.salesforce.com/signup*"],
       "run_at": "document_end"
+    },
+    {
+      "all_frames": false,
+      "js": ["./contentScriptsLogin.js"],
+      "matches": ["https://login.salesforce.com/*logintest*"],
+      "run_at": "document_end"
     }
   ],
   "description": "sftools",
