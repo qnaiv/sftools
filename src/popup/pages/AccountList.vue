@@ -74,6 +74,7 @@ import groupBy from 'lodash-es/groupBy'
 import draggable from 'vuedraggable'
 import Account from '../components/Account.vue'
 import AccountGroup from '../components/AccountGroup.vue'
+import SfConnection from '../../entity/SfConnection'
 
 export default {
   components: {
@@ -138,13 +139,13 @@ export default {
       this.$store.dispatch('resetAccounts', this._flatGroupedAccounts)
     },
     openHome(account) {
-      window.open(account.homeUrl)
+      new SfConnection().login(account, '/lightning/page/home')
     },
     openDevConsole(account) {
-      window.open(account.developerConsoleUrl)
+      new SfConnection().login(account, '/_ui/common/apex/debug/ApexCSIPage')
     },
     openSetup(account) {
-      window.open(account.setupUrl)
+      new SfConnection().login(account, '/lightning/setup/SetupOneHome/home')
     },
     keyboardAction(event) {
       switch (event.srcKey) {

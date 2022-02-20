@@ -8,6 +8,7 @@
     "bulma-fluent": "^0.3.25",
     "clone-deep": "^4.0.1",
     "crypto-js": "^4.0.0",
+    "jsforce": "^1.11.0",
     "lodash-es": "^4.17.21",
     "shortid": "^2.2.16",
     "v-hotkey": "^0.9.0",
