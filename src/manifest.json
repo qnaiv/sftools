@@ -28,7 +28,8 @@
   "permissions": [
     "storage",
     "background",
-    "https://login.salesforce.com/"
+    "https://login.salesforce.com/",
+    "https://test.salesforce.com/"
   ],
   "commands": {
     "_execute_browser_action": {
