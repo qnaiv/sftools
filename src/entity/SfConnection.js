@@ -2,8 +2,10 @@ import jsforce from 'jsforce'
 
 
 export default class SfConnection {
-    constructor(){
-        this._conn = new jsforce.Connection();
+    constructor(orgType){
+        this._conn = new jsforce.Connection({
+            loginUrl: `https://${orgType === 'sandbox' ? 'test' : 'login'}.salesforce.com`
+        });
     }
 
     login(account, redirectUrl){

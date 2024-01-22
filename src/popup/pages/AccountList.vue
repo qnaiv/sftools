@@ -139,13 +139,13 @@ export default {
       this.$store.dispatch('resetAccounts', this._flatGroupedAccounts)
     },
     openHome(account) {
-      new SfConnection().login(account, '/lightning/page/home')
+      new SfConnection(account.orgType).login(account, '/lightning/page/home')
     },
     openDevConsole(account) {
-      new SfConnection().login(account, '/_ui/common/apex/debug/ApexCSIPage')
+      new SfConnection(account.orgType).login(account, '/_ui/common/apex/debug/ApexCSIPage')
     },
     openSetup(account) {
-      new SfConnection().login(account, '/lightning/setup/SetupOneHome/home')
+      new SfConnection(account.orgType).login(account, '/lightning/setup/SetupOneHome/home')
     },
     keyboardAction(event) {
       switch (event.srcKey) {
